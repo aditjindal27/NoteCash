@@ -2,13 +2,19 @@ import React, {useEffect, useState} from 'react'
 import {Grid, Typography, CircularProgress} from '@material-ui/core';
 import useStyles from './styles';
 import { useSelector } from 'react-redux';
+import {useDispatch} from 'react-redux';
+import { getValue } from '../../actions/compute';
 
 const Tracker = () => {
     const classes = useStyles();
     const data = useSelector((state) => state.updateVal);
     const [headingColor, setColor] = useState("white");
+    const dispatch = useDispatch();
+    let user = JSON.parse(localStorage.getItem('profile'));
+    let id = user?.result?.googleId || user?.result?._id;
 
     useEffect(()=>{
+        dispatch(getValue(id));      
         let total = calculateTotal()
         if (total === 0) {
             setColor("white");
@@ -17,8 +23,7 @@ const Tracker = () => {
         } else {
             setColor("#ff5000");
         }
-
-    }, [data]);
+    }, [id, dispatch]);
 
     const calculateTotal = () => {
       
@@ -27,16 +32,16 @@ const Tracker = () => {
     };
 
     const calculateIncome = () => {
-        //return 0;
-        return data.incomes.reduce((a, b) => a + b, 0)
+        return Object.keys(data).length? data.incomes.reduce((a, b) => a + b, 0): 0 ;
+        //return data.incomes.reduce((a, b) => a + b, 0)
     };
 
     const calculateExpense = () => {
-        //return 0;
-        return data.expenses.reduce((a, b) => a + b, 0)
+        return Object.keys(data).length? data.expenses.reduce((a, b) => a + b, 0): 0 ;
+       //return data.expenses.reduce((a, b) => a + b, 0)
     };
 
-    return ( !data.length ? 
+    return ( Object.keys(data).length ? 
         <div>
                 <div style={{textAlign:'center'}}>
                 <Typography variant="h6" className={classes.balance}>YOUR BALANCE:</Typography>
